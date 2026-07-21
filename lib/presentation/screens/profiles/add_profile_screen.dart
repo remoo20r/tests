@@ -23,6 +23,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   late final TextEditingController _nameController;
   late final TextEditingController _usernameController;
   late final TextEditingController _passwordController;
+  late final TextEditingController _hostController;
   late final TextEditingController _m3uController;
   late final TextEditingController _epgController;
 
@@ -37,9 +38,12 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
     super.initState();
     final p = widget.existingProfile;
     _kind = p?.kind ?? PlaylistKind.xtream;
-    _nameController = TextEditingController(text: p?.name ?? 'Arabesk TV');
+    _nameController = TextEditingController(text: p?.name ?? '');
     _usernameController = TextEditingController(text: p?.username ?? '');
     _passwordController = TextEditingController();
+    _hostController = TextEditingController(
+      text: p?.host ?? 'http://arabesktv.com:2095',
+    );
     _m3uController = TextEditingController(text: p?.m3uUrl ?? '');
     _epgController = TextEditingController(text: p?.epgUrl ?? '');
 
@@ -55,6 +59,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
     _nameController.dispose();
     _usernameController.dispose();
     _passwordController.dispose();
+    _hostController.dispose();
     _m3uController.dispose();
     _epgController.dispose();
     super.dispose();
@@ -83,7 +88,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
       profile = XtreamProfile(
         id: id,
         name: _nameController.text.trim(),
-        host: XtreamApiService.normalizeHost('http://arabesktv.com:2095'),
+        host: XtreamApiService.normalizeHost(_hostController.text),
         username: _usernameController.text.trim(),
         kind: PlaylistKind.xtream,
       );
@@ -97,6 +102,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
 
     final profiles = ref.read(profilesProvider);
     if (!_isEditing && profiles.length == 1) {
+      // First playlist ever: select it and enter the app directly.
       ref.read(selectedProfileIdProvider.notifier).select(profile.id);
       context.go('/home');
     } else {
@@ -113,6 +119,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
+            // Playlist type selector.
             Row(
               children: [
                 Expanded(
@@ -158,8 +165,19 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                   ),
                 ),
                 obscureText: _obscurePassword,
-                textInputAction: TextInputAction.done,
+                textInputAction: TextInputAction.next,
                 validator: (v) => (v == null || v.isEmpty) ? 'Obbligatorio' : null,
+              ),
+              const SizedBox(height: 16),
+              TvTextFormField(
+                controller: _hostController,
+                decoration: const InputDecoration(
+                  labelText: 'Link',
+                  hintText: 'http://server.example.com:8080',
+                ),
+                keyboardType: TextInputType.url,
+                textInputAction: TextInputAction.done,
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'Obbligatorio' : null,
               ),
             ] else ...[
               TvTextFormField(
@@ -210,11 +228,13 @@ class _TypeChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TvFocusable (not a bare GestureDetector) so the type can also be
+    // switched with a TV remote.
     return TvFocusable(
       borderRadius: 14,
       onTap: onTap,
       child: Container(
-        padding: constسكريبت أو تفاصيل: EdgeInsets.symmetric(vertical: 14),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: selected ? Colors.white : Colors.white.withValues(alpha: 0.06),
