@@ -40,12 +40,12 @@ class _LiveTvScreenState extends ConsumerState<LiveTvScreen> {
     final profileId = ref.watch(selectedProfileIdProvider);
     if (profileId == null) {
       return CatalogScaffold(
-        title: 'TV',
+        title: 'Live TV',
         onSearch: (q) {},
         body: Center(
           child: ElevatedButton(
             onPressed: () => context.push('/settings'),
-            child: const Text('Seleziona una playlist dalle Impostazioni'),
+            child: const Text('Select a playlist from Settings'),
           ),
         ),
       );
@@ -53,7 +53,7 @@ class _LiveTvScreenState extends ConsumerState<LiveTvScreen> {
 
     if (_query.isNotEmpty) {
       return CatalogScaffold(
-        title: 'TV',
+        title: 'Live TV',
         initialQuery: _query,
         onSearch: (q) => setState(() => _query = q),
         body: _SearchResults(query: _query),
@@ -62,7 +62,7 @@ class _LiveTvScreenState extends ConsumerState<LiveTvScreen> {
 
     final categories = ref.watch(liveCategoriesProvider);
     return CatalogScaffold(
-      title: 'TV',
+      title: 'Live TV',
       onSearch: (q) => setState(() => _query = q),
       body: categories.when(
         data: (cats) {
@@ -130,7 +130,7 @@ class _LiveFavorites extends ConsumerWidget {
         .where((f) => f.type == FavoriteType.live && !adultIds.contains(f.id))
         .toList();
     if (favs.isEmpty) {
-      return const Center(child: Text('Nessun canale preferito. Tocca il cuore su un canale.'));
+      return const Center(child: Text('No favorite channels. Tap the heart on a channel.'));
     }
     return _channelGridView(
       itemCount: favs.length,
@@ -155,7 +155,7 @@ class _SearchResults extends ConsumerWidget {
       data: (channels) {
         final q = query.toLowerCase();
         final filtered = channels.where((c) => c.name.toLowerCase().contains(q)).toList();
-        if (filtered.isEmpty) return const Center(child: Text('Nessun canale trovato.'));
+        if (filtered.isEmpty) return const Center(child: Text('No channels found.'));
         return _channelGridView(
           itemCount: filtered.length,
           itemBuilder: (context, index) => _ChannelTile(channel: filtered[index]),
@@ -182,7 +182,7 @@ class _ChannelGrid extends ConsumerWidget {
     return channels.when(
       data: (list) {
         if (list.isEmpty) {
-          return const Center(child: Text('Nessun canale in questa categoria.'));
+          return const Center(child: Text('No channels in this category.'));
         }
         return _channelGridView(
           itemCount: list.length,
@@ -193,7 +193,7 @@ class _ChannelGrid extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => Center(child: Text('Errore: $error')),
+      error: (error, _) => Center(child: Text('Error: $error')),
     );
   }
 }
