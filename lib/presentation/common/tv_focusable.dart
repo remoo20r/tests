@@ -20,6 +20,11 @@ import '../../core/ui_mode.dart';
 /// D-pad focus landed on the node without the key handler and OK did
 /// nothing): OK activates on key-up, and holding OK (key repeat) triggers
 /// [onLongPress] — the D-pad equivalent of a touch long-press.
+///
+/// Focus indicator: a pulsing gold/red glow ring, designed to be
+/// unmistakable for low-vision users — no reliance on subtle color shifts
+/// alone. The element itself never scales (so it can't overlap its
+/// neighbours); the ring + animated glow carries all the emphasis.
 class TvFocusable extends StatefulWidget {
   const TvFocusable({
     super.key,
@@ -50,10 +55,13 @@ class TvFocusable extends StatefulWidget {
   State<TvFocusable> createState() => _TvFocusableState();
 }
 
-class _TvFocusableState extends State<TvFocusable> {
+class _TvFocusableState extends State<TvFocusable> with SingleTickerProviderStateMixin {
   bool _hovered = false;
   bool _selectDown = false;
   bool _longPressFired = false;
+
+  late final AnimationController _pulseController;
+  late final Animation<double> _pulse;
 
   /// Whether this element takes part in D-pad focus at all.
   static bool get _focusable => TvFocusable.debugDpadOverride ?? dpadFocusEnabled();
@@ -70,6 +78,22 @@ class _TvFocusableState extends State<TvFocusable> {
         key == LogicalKeyboardKey.enter ||
         key == LogicalKeyboardKey.numpadEnter ||
         key == LogicalKeyboardKey.gameButtonA;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
+    _pulse = CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut);
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
   }
 
   KeyEventResult _handleKey(FocusNode node, KeyEvent event) {
@@ -119,10 +143,6 @@ class _TvFocusableState extends State<TvFocusable> {
           // the focus state changes.
           final focused = Focus.of(context).hasPrimaryFocus;
 
-          // NB: no scaling. A focused tile used to grow, which made it spill
-          // over its neighbours and overlap their captions. The ring + glow
-          // carries the focus on its own, and the border width is constant
-          // (only the colour changes) so nothing shifts when focus moves.
           return MouseRegion(
             cursor: SystemMouseCursors.click,
             onEnter: _hoverEnabled ? (_) => setState(() => _hovered = true) : null,
@@ -130,30 +150,52 @@ class _TvFocusableState extends State<TvFocusable> {
             child: GestureDetector(
               onTap: widget.onTap,
               onLongPress: widget.onLongPress,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 130),
-                decoration: BoxDecoration(
+              child: AnimatedBuilder(
+                animation: _pulse,
+                builder: (context, child) {
+                  // Breathing glow only while focused: alpha/blur ride the
+                  // pulse animation so the ring visibly "lives" instead of
+                  // sitting static — this is the main low-vision cue.
+                  final t = focused ? _pulse.value : 0.0;
+                  final glowAlpha = 0.35 + (t * 0.35); // 0.35 -> 0.70
+                  final glowBlur = 14.0 + (t * 10.0); // 14 -> 24
+                  final ringWidth = focused ? 4.0 : (_hovered ? 2.0 : 0.0);
+
+                  return Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(widget.borderRadius),
+                      border: Border.all(
+                        // Focus (remote/keyboard) must be unmistakable; hover
+                        // is only a soft hint. Gold ring with a red inner
+                        // accent gives a distinct two-tone "you are here"
+                        // marker rather than a single flat color.
+                        color: focused
+                            ? Color.lerp(AppColors.gold, AppColors.redLight, t * 0.4)!
+                            : (_hovered ? AppColors.gold.withValues(alpha: 0.5) : Colors.transparent),
+                        width: ringWidth,
+                      ),
+                      boxShadow: focused
+                          ? [
+                              BoxShadow(
+                                color: AppColors.gold.withValues(alpha: glowAlpha),
+                                blurRadius: glowBlur,
+                                spreadRadius: 1 + t,
+                              ),
+                              BoxShadow(
+                                color: AppColors.red.withValues(alpha: glowAlpha * 0.5),
+                                blurRadius: glowBlur * 1.6,
+                                spreadRadius: 0,
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: child,
+                  );
+                },
+                child: ClipRRect(
                   borderRadius: BorderRadius.circular(widget.borderRadius),
-                  border: Border.all(
-                    // Focus (remote/keyboard) must be unmistakable; hover is
-                    // only a soft hint.
-                    color: focused
-                        ? AppColors.focusRing
-                        : (_hovered ? Colors.white38 : Colors.transparent),
-                    width: 3,
-                  ),
-                  boxShadow: focused
-                      ? [
-                          // Kept tight: a wide/bright glow bleeds onto the
-                          // neighbours and makes them look selected too.
-                          BoxShadow(
-                            color: Colors.white.withValues(alpha: 0.22),
-                            blurRadius: 12,
-                          ),
-                        ]
-                      : null,
+                  child: widget.child,
                 ),
-                child: widget.child,
               ),
             ),
           );
