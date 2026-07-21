@@ -33,7 +33,7 @@ class _SeriesScreenState extends ConsumerState<SeriesScreen> {
   Widget build(BuildContext context) {
     if (_query.isNotEmpty) {
       return CatalogScaffold(
-        title: 'Serie',
+        title: 'Series',
         initialQuery: _query,
         onSearch: (q) => setState(() => _query = q),
         body: _SeriesSearchResults(query: _query),
@@ -42,7 +42,7 @@ class _SeriesScreenState extends ConsumerState<SeriesScreen> {
 
     final categories = ref.watch(seriesCategoriesProvider);
     return CatalogScaffold(
-      title: 'Serie',
+      title: 'Series',
       onSearch: (q) => setState(() => _query = q),
       body: categories.when(
         data: (cats) {
@@ -140,7 +140,7 @@ class _SeriesContinue extends ConsumerWidget {
         .where((p) => !adultIds.contains(p.seriesId))
         .toList();
     if (items.isEmpty) {
-      return const Center(child: Text('Niente da riprendere. Guarda un episodio per vederlo qui.'));
+      return const Center(child: Text('Nothing to resume. Watch an episode to see it here.'));
     }
     return GridView.builder(
       padding: EdgeInsets.all(GridMetrics.gridPadding),
@@ -223,16 +223,16 @@ class _SeriesContinue extends ConsumerWidget {
 Future<void> _confirmRemove(BuildContext context, WidgetRef ref, String seriesId, String name) async {
   final ok = await showAppConfirmDialog(
     context,
-    title: 'Rimuovere da Continua a guardare?',
-    message: '"$name" verrà rimossa da Continua a guardare.',
-    confirmLabel: 'Rimuovi',
+    title: 'Remove from Continue Watching?',
+    message: '"$name" will be removed from Continue Watching.',
+    confirmLabel: 'Remove',
   );
   if (ok) {
     await ref.read(watchProgressProvider.notifier).removeSeries(seriesId);
   }
 }
 
-/// Small circular "×" overlay used to remove an item from Continua a guardare.
+/// Small circular "×" overlay used to remove an item from Continue Watching.
 /// Works with mouse/touch; long-press on the card is the D-pad/touch fallback.
 class _RemoveButton extends StatelessWidget {
   const _RemoveButton({required this.onRemove});
@@ -270,7 +270,7 @@ class _SeriesFavorites extends ConsumerWidget {
         .where((f) => f.type == FavoriteType.series && !adultIds.contains(f.id))
         .toList();
     if (favs.isEmpty) {
-      return const Center(child: Text('Nessuna serie preferita. Tocca il cuore su una serie.'));
+      return const Center(child: Text('No favorite series. Tap the heart on a series.'));
     }
     return _posterGrid(
       favs.map((f) => SeriesItem(seriesId: f.id, name: f.name, categoryId: '', coverUrl: f.imageUrl)).toList(),
@@ -289,7 +289,7 @@ class _SeriesAll extends ConsumerWidget {
       data: (items) {
         final visible = items.where((i) => !adultCats.contains(i.categoryId)).toList();
         return visible.isEmpty
-            ? const Center(child: Text('Nessuna serie.'))
+            ? const Center(child: Text('No series.'))
             : _posterGrid(visible);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -317,7 +317,7 @@ class _SeriesRecent extends ConsumerWidget {
             return (int.tryParse(b.seriesId) ?? 0).compareTo(int.tryParse(a.seriesId) ?? 0);
           });
         final recent = sorted.take(100).toList();
-        if (recent.isEmpty) return const Center(child: Text('Nessuna serie.'));
+        if (recent.isEmpty) return const Center(child: Text('No series.'));
         return _posterGrid(recent);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -340,7 +340,7 @@ class _SeriesSearchResults extends ConsumerWidget {
       data: (items) {
         final q = query.toLowerCase();
         final filtered = items.where((s) => s.name.toLowerCase().contains(q)).toList();
-        if (filtered.isEmpty) return const Center(child: Text('Nessuna serie trovata.'));
+        if (filtered.isEmpty) return const Center(child: Text('No series found.'));
         return _posterGrid(filtered);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -364,12 +364,12 @@ class _SeriesGrid extends ConsumerWidget {
     return items.when(
       data: (list) {
         if (list.isEmpty) {
-          return const Center(child: Text('Nessuna serie in questa categoria.'));
+          return const Center(child: Text('No series in this category.'));
         }
         return _posterGrid(list);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => Center(child: Text('Errore: $error')),
+      error: (error, _) => Center(child: Text('Error: $error')),
     );
   }
 }
