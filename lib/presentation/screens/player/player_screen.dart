@@ -331,6 +331,21 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
     _poke();
   }
 
+  /// Moves to the next/previous live channel (delta = +1 / -1) using the full
+  /// channel list, wrapping around at the ends. Used for one-button zapping
+  /// (D-pad / arrow keys) without opening the channel list overlay.
+  void _stepLiveChannel(int delta) {
+    if (!_isLive) return;
+    final list = ref.read(allChannelsProvider).value;
+    if (list == null || list.isEmpty) return;
+    var index = list.indexWhere((c) => c.streamId == _currentStreamId);
+    if (index < 0) index = 0;
+    final next = (index + delta) % list.length;
+    final wrapped = next < 0 ? next + list.length : next;
+    final c = list[wrapped];
+    _switchChannel(c.streamId, c.name);
+  }
+
   String? get _qualityLabel {
     final h = _videoHeight ?? 0;
     if (h <= 0) return null;
@@ -471,6 +486,21 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
 
   /// Executes the decision made by [playerKeyAction].
   KeyEventResult _handleKey(FocusNode node, KeyEvent event) {
+    // One-button live zapping: Up/Down switch to the next/previous channel
+    // straight away, without opening the channel list — works whether the
+    // controls are showing or hidden, as long as the list overlay is closed.
+    if (_isLive && !_channelListOpen && event is KeyDownEvent) {
+      final key = event.logicalKey;
+      if (key == LogicalKeyboardKey.arrowUp) {
+        _stepLiveChannel(-1);
+        return KeyEventResult.handled;
+      }
+      if (key == LogicalKeyboardKey.arrowDown) {
+        _stepLiveChannel(1);
+        return KeyEventResult.handled;
+      }
+    }
+
     switch (playerKeyAction(
       key: event.logicalKey,
       isKeyDown: event is KeyDownEvent,
@@ -706,28 +736,13 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
                   onTap: _toggleControls,
                 ),
               ),
-              // Buffering / auto-reconnect indicator.
+              // Loading state: a plain black screen while a channel/stream is
+              // opening or reconnecting — no spinner, no text, so nothing
+              // flashes on screen while switching channels.
               if (_error == null && (_buffering || _reconnecting))
-                Positioned.fill(
+                const Positioned.fill(
                   child: IgnorePointer(
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(
-                            width: 46, height: 46,
-                            child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
-                          ),
-                          if (_reconnecting) ...[
-                            const SizedBox(height: 14),
-                            Text(
-                              'Riconnessione… (tentativo $_retry)',
-                              style: const TextStyle(color: Colors.white, fontSize: 13),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
+                    child: ColoredBox(color: Colors.black),
                   ),
                 ),
               AnimatedOpacity(
@@ -1612,4 +1627,3 @@ class _ChannelListOverlayState extends ConsumerState<_ChannelListOverlay> {
     );
   }
 }
-
