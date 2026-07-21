@@ -1,19 +1,31 @@
 import 'package:flutter/material.dart';
 
-/// Grayscale-only palette (liquid glass dark). No hues anywhere:
-/// every color is black, white, or a translucent white tint.
+/// Black / Red / Gold palette — professional dark theme with a glossy,
+/// high-contrast accent scheme. Gold is used for primary emphasis and
+/// focus states; red is used for secondary emphasis and highlights.
 class AppColors {
   static const background = Color(0xFF000000);
-  static const surface = Color(0xFF141414);
-  static const surfaceElevated = Color(0xFF1F1F1F);
+  static const surface = Color(0xFF141010);
+  static const surfaceElevated = Color(0xFF201818);
+
+  // Gold — primary accent (buttons, active states, highlights).
+  static const gold = Color(0xFFD4AF37);
+  static const goldLight = Color(0xFFF2D272);
+  static const goldDark = Color(0xFF9C7A1E);
+
+  // Red — secondary accent (alerts, live badges, secondary emphasis).
+  static const red = Color(0xFFC81E2C);
+  static const redLight = Color(0xFFE84C57);
+  static const redDark = Color(0xFF7A0F18);
+
   static const glassTint = Color(0x14FFFFFF); // 8% white
-  static const glassBorder = Color(0x1FFFFFFF); // 12% white
-  static const accent = Color(0xFFFFFFFF);
-  static const accentSecondary = Color(0xFFBDBDBD);
-  static const textPrimary = Color(0xFFF5F5F7);
-  static const textSecondary = Color(0xFF9A9A9E);
-  static const divider = Color(0x14FFFFFF);
-  static const focusRing = Color(0xFFFFFFFF);
+  static const glassBorder = Color(0x1FD4AF37); // 12% gold border
+  static const accent = gold;
+  static const accentSecondary = red;
+  static const textPrimary = Color(0xFFF5F0E6);
+  static const textSecondary = Color(0xFFBFAF8E);
+  static const divider = Color(0x1FD4AF37);
+  static const focusRing = gold;
 }
 
 class AppTheme {
@@ -25,15 +37,14 @@ class AppTheme {
       scaffoldBackgroundColor: Colors.transparent,
       colorScheme: const ColorScheme.dark(
         surface: AppColors.background,
-        primary: AppColors.accent,
+        primary: AppColors.gold,
         onPrimary: Colors.black,
-        secondary: AppColors.accentSecondary,
-        onSecondary: Colors.black,
+        secondary: AppColors.red,
+        onSecondary: Colors.white,
         onSurface: AppColors.textPrimary,
       ),
       fontFamily: 'SF Pro Text',
     );
-
     return base.copyWith(
       textTheme: base.textTheme
           .apply(
@@ -43,24 +54,24 @@ class AppTheme {
           )
           .copyWith(
             headlineMedium: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w600,
+              fontSize: 32,
+              fontWeight: FontWeight.w700,
               letterSpacing: -0.4,
               color: AppColors.textPrimary,
             ),
             titleLarge: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
+              fontSize: 23,
+              fontWeight: FontWeight.w700,
               letterSpacing: -0.2,
               color: AppColors.textPrimary,
             ),
             bodyMedium: const TextStyle(
-              fontSize: 15,
+              fontSize: 18,
               color: AppColors.textSecondary,
             ),
           ),
       cardTheme: CardThemeData(
-        color: Colors.white.withValues(alpha: 0.06),
+        color: const Color(0xFF181212),
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -74,40 +85,40 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         centerTitle: false,
         titleTextStyle: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w600,
+          fontSize: 25,
+          fontWeight: FontWeight.w700,
           letterSpacing: -0.3,
           color: AppColors.textPrimary,
         ),
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
+        iconTheme: IconThemeData(color: AppColors.gold),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.gold,
           foregroundColor: Colors.black,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.textPrimary,
-          side: const BorderSide(color: AppColors.glassBorder, width: 1),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          side: const BorderSide(color: AppColors.gold, width: 1.2),
+          padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: AppColors.textPrimary),
+        style: TextButton.styleFrom(foregroundColor: AppColors.gold),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.06),
+        fillColor: const Color(0xFF181212),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.glassBorder, width: 1),
@@ -118,21 +129,21 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Colors.white, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.gold, width: 1.8),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        hintStyle: const TextStyle(color: AppColors.textSecondary),
-        labelStyle: const TextStyle(color: AppColors.textSecondary),
-        floatingLabelStyle: const TextStyle(color: AppColors.textPrimary),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        hintStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 17),
+        labelStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 17),
+        floatingLabelStyle: const TextStyle(color: AppColors.gold, fontSize: 17),
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: Colors.white.withValues(alpha: 0.08),
-        labelStyle: const TextStyle(color: AppColors.textPrimary),
+        backgroundColor: const Color(0xFF201818),
+        labelStyle: const TextStyle(color: AppColors.textPrimary, fontSize: 16),
         side: const BorderSide(color: AppColors.glassBorder, width: 1),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: const Color(0xF21C1C1E),
+        backgroundColor: const Color(0xF2140F0F),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
           side: const BorderSide(color: AppColors.glassBorder, width: 1),
@@ -140,31 +151,31 @@ class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.surfaceElevated,
-        contentTextStyle: const TextStyle(color: AppColors.textPrimary),
+        contentTextStyle: const TextStyle(color: AppColors.textPrimary, fontSize: 17),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         behavior: SnackBarBehavior.floating,
       ),
       sliderTheme: SliderThemeData(
-        activeTrackColor: Colors.white,
-        inactiveTrackColor: Colors.white.withValues(alpha: 0.2),
-        thumbColor: Colors.white,
-        overlayColor: Colors.white.withValues(alpha: 0.1),
-        trackHeight: 3,
+        activeTrackColor: AppColors.gold,
+        inactiveTrackColor: AppColors.gold.withValues(alpha: 0.2),
+        thumbColor: AppColors.gold,
+        overlayColor: AppColors.gold.withValues(alpha: 0.15),
+        trackHeight: 4,
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected) ? Colors.black : Colors.white,
+          (states) => states.contains(WidgetState.selected) ? Colors.black : AppColors.textPrimary,
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? Colors.white
+              ? AppColors.gold
               : Colors.white.withValues(alpha: 0.15),
         ),
         trackOutlineColor: const WidgetStatePropertyAll(AppColors.glassBorder),
       ),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(color: Colors.white),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(color: AppColors.gold),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.gold,
         foregroundColor: Colors.black,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
@@ -173,7 +184,7 @@ class AppTheme {
         thickness: 0.5,
       ),
       listTileTheme: const ListTileThemeData(
-        iconColor: AppColors.textSecondary,
+        iconColor: AppColors.gold,
         textColor: AppColors.textPrimary,
       ),
       splashFactory: NoSplash.splashFactory,
