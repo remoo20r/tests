@@ -51,7 +51,7 @@ class ProfilesScreen extends ConsumerWidget {
           : FloatingActionButton.extended(
               onPressed: () => context.push('/profiles/add'),
               icon: const Icon(Icons.add),
-              label: const Text('Aggiungi playlist'),
+              label: const Text('Add playlist'),
             ),
     );
   }
@@ -59,9 +59,9 @@ class ProfilesScreen extends ConsumerWidget {
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref, XtreamProfile profile) async {
     final confirmed = await showAppConfirmDialog(
       context,
-      title: 'Eliminare playlist?',
-      message: '"${profile.name}" verrà rimossa insieme alle credenziali salvate.',
-      confirmLabel: 'Elimina',
+      title: 'Delete playlist?',
+      message: '"${profile.name}" will be removed along with its saved credentials.',
+      confirmLabel: 'Delete',
     );
     if (confirmed) {
       await ref.read(profilesProvider.notifier).remove(profile.id);
@@ -82,10 +82,10 @@ class _EmptyState extends StatelessWidget {
         children: [
           Icon(Icons.live_tv_outlined, size: 56, color: AppColors.textSecondary),
           const SizedBox(height: 16),
-          Text('Nessuna playlist', style: Theme.of(context).textTheme.headlineMedium),
+          Text('No playlists', style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 8),
           Text(
-            'Aggiungi le credenziali Xtream Codes per iniziare',
+            'Add your Xtream Codes credentials to get started',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 24),
@@ -96,7 +96,7 @@ class _EmptyState extends StatelessWidget {
             autofocus: true,
             onPressed: onAdd,
             icon: const Icon(Icons.add),
-            label: const Text('Aggiungi playlist'),
+            label: const Text('Add playlist'),
           ),
         ],
       ),
