@@ -113,7 +113,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_isEditing ? 'Modifica playlist' : 'Nuova playlist')),
+      appBar: AppBar(title: Text(_isEditing ? 'Edit playlist' : 'New playlist')),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -142,9 +142,9 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
             const SizedBox(height: 20),
             TvTextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Nome Playlist'),
+              decoration: const InputDecoration(labelText: 'Playlist name'),
               textInputAction: TextInputAction.next,
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Obbligatorio' : null,
+              validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
             ),
             const SizedBox(height: 16),
             if (_kind == PlaylistKind.xtream) ...[
@@ -152,7 +152,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                 controller: _usernameController,
                 decoration: const InputDecoration(labelText: 'Username'),
                 textInputAction: TextInputAction.next,
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Obbligatorio' : null,
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
               ),
               const SizedBox(height: 16),
               TvTextFormField(
@@ -166,7 +166,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                 ),
                 obscureText: _obscurePassword,
                 textInputAction: TextInputAction.next,
-                validator: (v) => (v == null || v.isEmpty) ? 'Obbligatorio' : null,
+                validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
               ),
               const SizedBox(height: 16),
               TvTextFormField(
@@ -177,25 +177,25 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                 ),
                 keyboardType: TextInputType.url,
                 textInputAction: TextInputAction.done,
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Obbligatorio' : null,
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
               ),
             ] else ...[
               TvTextFormField(
                 controller: _m3uController,
                 decoration: const InputDecoration(
-                  labelText: 'Link M3U',
+                  labelText: 'M3U Link',
                   hintText: 'http://server/get.php?...&type=m3u_plus',
                 ),
                 keyboardType: TextInputType.url,
                 textInputAction: TextInputAction.next,
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Obbligatorio' : null,
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
               ),
               const SizedBox(height: 16),
               TvTextFormField(
                 controller: _epgController,
                 decoration: const InputDecoration(
-                  labelText: 'Link EPG (XMLTV) — opzionale',
-                  hintText: 'http://server/xmltv.php?... (.xml o .xml.gz)',
+                  labelText: 'EPG Link (XMLTV) — optional',
+                  hintText: 'http://server/xmltv.php?... (.xml or .xml.gz)',
                 ),
                 keyboardType: TextInputType.url,
                 textInputAction: TextInputAction.done,
@@ -210,7 +210,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                     )
-                  : const Text('Salva'),
+                  : const Text('Save'),
             ),
           ],
         ),
