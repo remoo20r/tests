@@ -42,9 +42,9 @@ class HomeScreen extends ConsumerWidget {
         if (didPop) return;
         final exit = await showAppConfirmDialog(
           context,
-          title: 'Uscire da Broken IPTV?',
-          message: 'Vuoi chiudere l\'applicazione?',
-          confirmLabel: 'Esci',
+          title: 'Exit Broken IPTV?',
+          message: 'Do you want to close the app?',
+          confirmLabel: 'Exit',
         );
         if (exit) SystemNavigator.pop();
       },
@@ -62,26 +62,26 @@ class HomeScreen extends ConsumerWidget {
         ),
         actions: [
           IconButton(
-            tooltip: 'Cerca',
+            tooltip: 'Search',
             icon: const Icon(Icons.search),
             onPressed: () => context.push('/search'),
           ),
           // Offline downloads: phone (touch) mode on the APK only.
           if (downloadsSupported())
             IconButton(
-              tooltip: 'Scaricati',
+              tooltip: 'Downloads',
               icon: const Icon(Icons.download_outlined),
               onPressed: () => context.push('/downloads'),
             ),
           // Windows only: on Android the app is permanently fullscreen.
           if (fullscreenToggleAvailable)
             IconButton(
-              tooltip: isFullscreen ? 'Esci da schermo intero' : 'Schermo intero',
+              tooltip: isFullscreen ? 'Exit Fullscreen' : 'Fullscreen',
               icon: Icon(isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen),
               onPressed: () => ref.read(fullscreenProvider.notifier).toggle(),
             ),
           IconButton(
-            tooltip: 'Impostazioni',
+            tooltip: 'Settings',
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => context.push('/settings'),
           ),
@@ -109,8 +109,10 @@ class HomeScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _HomeTile(
-                          label: 'TV',
-                          icon: Icons.live_tv,
+                          label: 'Live TV',
+                          icon: Icons.live_tv_rounded,
+                          gradientColors: const [AppColors.redLight, AppColors.redDark],
+                          glowColor: AppColors.red,
                           width: tileW,
                           height: tileH,
                           // D-pad: land on TV when the home opens.
@@ -119,16 +121,20 @@ class HomeScreen extends ConsumerWidget {
                         ),
                         SizedBox(width: gap),
                         _HomeTile(
-                          label: 'Serie',
-                          icon: Icons.video_library_outlined,
+                          label: 'Series',
+                          icon: Icons.video_library_rounded,
+                          gradientColors: const [Color(0xFFE8B84B), AppColors.red],
+                          glowColor: AppColors.goldDark,
                           width: tileW,
                           height: tileH,
                           onTap: () => context.push('/series'),
                         ),
                         SizedBox(width: gap),
                         _HomeTile(
-                          label: 'Film',
-                          icon: Icons.movie_outlined,
+                          label: 'Movies',
+                          icon: Icons.local_movies_rounded,
+                          gradientColors: const [AppColors.goldLight, AppColors.goldDark],
+                          glowColor: AppColors.gold,
                           width: tileW,
                           height: tileH,
                           onTap: () => context.push('/vod'),
@@ -152,10 +158,16 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
+/// A round, glossy, color-coded tile for one of the three main sections.
+/// The circle's gradient + glow are chosen per section so each one reads at a
+/// glance (red = live, gold = movies, red/gold blend = series), on top of the
+/// app's black/red/gold identity.
 class _HomeTile extends StatelessWidget {
   const _HomeTile({
     required this.label,
     required this.icon,
+    required this.gradientColors,
+    required this.glowColor,
     required this.width,
     required this.height,
     required this.onTap,
@@ -164,6 +176,8 @@ class _HomeTile extends StatelessWidget {
 
   final String label;
   final IconData icon;
+  final List<Color> gradientColors;
+  final Color glowColor;
   final double width;
   final double height;
   final VoidCallback onTap;
@@ -171,32 +185,79 @@ class _HomeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconSize = (width * 0.22).clamp(28.0, 64.0);
-    final fontSize = (width * 0.12).clamp(16.0, 26.0);
+    final circleSize = width.clamp(90.0, height * 0.72);
+    final iconSize = (circleSize * 0.42).clamp(28.0, 64.0);
+    final fontSize = (width * 0.13).clamp(17.0, 26.0);
 
     return SizedBox(
       width: width,
       height: height,
       child: TvFocusable(
-        borderRadius: 20,
+        borderRadius: circleSize / 2 + 10,
         autofocus: autofocus,
         onTap: onTap,
-        child: Card(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: iconSize, color: Colors.white),
-              SizedBox(height: height * 0.06),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: fontSize,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: circleSize,
+              height: circleSize,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: gradientColors,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: glowColor.withValues(alpha: 0.55),
+                    blurRadius: 24,
+                    spreadRadius: 1,
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.4),
+                    blurRadius: 10,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
               ),
-            ],
-          ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Glossy highlight: a soft white sheen in the upper-left,
+                  // like light reflecting off a polished sphere.
+                  Positioned(
+                    top: circleSize * 0.10,
+                    left: circleSize * 0.14,
+                    child: Container(
+                      width: circleSize * 0.5,
+                      height: circleSize * 0.32,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Colors.white.withValues(alpha: 0.55),
+                            Colors.white.withValues(alpha: 0.0),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Icon(icon, size: iconSize, color: Colors.white),
+                ],
+              ),
+            ),
+            SizedBox(height: height * 0.06),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -224,7 +285,7 @@ class _ExpiryLine extends ConsumerWidget {
         return Padding(
           padding: const EdgeInsets.only(top: 4),
           child: Text(
-            'Abbonamento valido fino al ${formatExpiry(date)}',
+            'Subscription valid until ${formatExpiry(date)}',
             style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
           ),
         );
@@ -256,7 +317,7 @@ class _RefreshButtonState extends ConsumerState<_RefreshButton> {
     if (!mounted) return;
     setState(() {
       _ok = error == null;
-      _result = error == null ? 'Lista aggiornata' : 'Aggiornamento non riuscito';
+      _result = error == null ? 'List updated' : 'Update failed';
     });
     _resetTimer?.cancel();
     _resetTimer = Timer(const Duration(seconds: 3), () {
@@ -267,7 +328,7 @@ class _RefreshButtonState extends ConsumerState<_RefreshButton> {
   @override
   Widget build(BuildContext context) {
     final refreshing = ref.watch(catalogRefreshingProvider);
-    final label = refreshing ? 'Aggiornamento...' : (_result ?? 'Aggiorna lista');
+    final label = refreshing ? 'Updating...' : (_result ?? 'Refresh list');
     final Widget icon;
     if (refreshing) {
       icon = const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2));
