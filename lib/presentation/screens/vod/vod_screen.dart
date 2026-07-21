@@ -33,7 +33,7 @@ class _VodScreenState extends ConsumerState<VodScreen> {
   Widget build(BuildContext context) {
     if (_query.isNotEmpty) {
       return CatalogScaffold(
-        title: 'Film',
+        title: 'Movies',
         initialQuery: _query,
         onSearch: (q) => setState(() => _query = q),
         body: _VodSearchResults(query: _query),
@@ -42,7 +42,7 @@ class _VodScreenState extends ConsumerState<VodScreen> {
 
     final categories = ref.watch(vodCategoriesProvider);
     return CatalogScaffold(
-      title: 'Film',
+      title: 'Movies',
       onSearch: (q) => setState(() => _query = q),
       body: categories.when(
         data: (cats) {
@@ -140,7 +140,7 @@ class _VodContinue extends ConsumerWidget {
         .where((p) => !adultIds.contains(p.vodId))
         .toList();
     if (items.isEmpty) {
-      return const Center(child: Text('Niente da riprendere. Guarda un film per vederlo qui.'));
+      return const Center(child: Text('Nothing to resume. Watch a movie to see it here.'));
     }
     return GridView.builder(
       padding: EdgeInsets.all(GridMetrics.gridPadding),
@@ -215,9 +215,9 @@ class _VodContinue extends ConsumerWidget {
 Future<void> _confirmRemoveVod(BuildContext context, WidgetRef ref, String key, String name) async {
   final ok = await showAppConfirmDialog(
     context,
-    title: 'Rimuovere da Continua a guardare?',
-    message: '"$name" verrà rimosso da Continua a guardare.',
-    confirmLabel: 'Rimuovi',
+    title: 'Remove from Continue Watching?',
+    message: '"$name" will be removed from Continue Watching.',
+    confirmLabel: 'Remove',
   );
   if (ok) {
     await ref.read(watchProgressProvider.notifier).remove(key);
@@ -260,7 +260,7 @@ class _VodFavorites extends ConsumerWidget {
         .where((f) => f.type == FavoriteType.vod && !adultIds.contains(f.id))
         .toList();
     if (favs.isEmpty) {
-      return const Center(child: Text('Nessun film preferito. Tocca il cuore su un film.'));
+      return const Center(child: Text('No favorite movies. Tap the heart on a movie.'));
     }
     return _posterGrid(
       favs.map((f) => VodItem(streamId: f.id, name: f.name, categoryId: '', posterUrl: f.imageUrl)).toList(),
@@ -279,7 +279,7 @@ class _VodAll extends ConsumerWidget {
       data: (items) {
         final visible = items.where((i) => !adultCats.contains(i.categoryId)).toList();
         return visible.isEmpty
-            ? const Center(child: Text('Nessun film.'))
+            ? const Center(child: Text('No movies.'))
             : _posterGrid(visible);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -307,7 +307,7 @@ class _VodRecent extends ConsumerWidget {
             return (int.tryParse(b.streamId) ?? 0).compareTo(int.tryParse(a.streamId) ?? 0);
           });
         final recent = sorted.take(100).toList();
-        if (recent.isEmpty) return const Center(child: Text('Nessun film.'));
+        if (recent.isEmpty) return const Center(child: Text('No movies.'));
         return _posterGrid(recent);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -330,7 +330,7 @@ class _VodSearchResults extends ConsumerWidget {
       data: (items) {
         final q = query.toLowerCase();
         final filtered = items.where((m) => m.name.toLowerCase().contains(q)).toList();
-        if (filtered.isEmpty) return const Center(child: Text('Nessun film trovato.'));
+        if (filtered.isEmpty) return const Center(child: Text('No movies found.'));
         return _posterGrid(filtered);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -354,12 +354,12 @@ class _VodGrid extends ConsumerWidget {
     return items.when(
       data: (list) {
         if (list.isEmpty) {
-          return const Center(child: Text('Nessun film in questa categoria.'));
+          return const Center(child: Text('No movies in this category.'));
         }
         return _posterGrid(list);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => Center(child: Text('Errore: $error')),
+      error: (error, _) => Center(child: Text('Error: $error')),
     );
   }
 }
